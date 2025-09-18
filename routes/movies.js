@@ -5,7 +5,6 @@ import { validate, paginationSchema } from '../middleware/validation.js';
 
 const router = express.Router();
 
-// Public routes with optional authentication
 router.get('/search', optionalAuth, searchMovies);
 router.get('/popular', optionalAuth, getPopularMovies);
 router.get('/top-rated', optionalAuth, validate(paginationSchema), getTopRatedMovies);
