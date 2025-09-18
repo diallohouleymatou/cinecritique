@@ -7,19 +7,35 @@ export const createReview = async (req, res, next) => {
     const { filmId, rating, comment } = req.validatedData.body;
     const userId = req.user.id;
 
-    // Verify movie exists in TMDb
-    await TMDbAPI.getMovieDetails(filmId);
+    // Vérifier si le film existe en base locale
+    let movie = await Movie.findByPk(filmId);
+    if (!movie) {
+      // Récupérer les infos du film via TMDb
+      const tmdbMovie = await TMDbAPI.getMovieDetails(filmId);
+      if (!tmdbMovie) {
+        throw errorResponse('Movie not found in TMDb', 404);
+      }
+      // Insérer le film en base locale
+      movie = await Movie.create({
+        id: tmdbMovie.id,
+        title: tmdbMovie.title,
+        poster: tmdbMovie.poster_path,
+        releaseDate: tmdbMovie.release_date,
+        genres: tmdbMovie.genres ? tmdbMovie.genres.map(g => g.name) : [],
+        runtime: tmdbMovie.runtime,
+        overview: tmdbMovie.overview
+      });
+    }
 
-    // Check if user already reviewed this movie
+    // Vérifier si l'utilisateur a déjà laissé une review
     const existingReview = await Review.findOne({
       where: { userId, filmId }
     });
-
     if (existingReview) {
       throw errorResponse('You have already reviewed this movie', 409);
     }
 
-    // Create review
+    // Créer la review
     const review = await Review.create({
       userId,
       filmId,
@@ -27,7 +43,7 @@ export const createReview = async (req, res, next) => {
       comment
     });
 
-    // Get review with user data
+    // Retourner la review avec les infos utilisateur
     const reviewWithUser = await Review.findByPk(review.id, {
       include: [{
         model: User,
@@ -37,7 +53,6 @@ export const createReview = async (req, res, next) => {
     });
 
     res.status(201).json(successResponse(reviewWithUser, 'Review created successfully'));
-
   } catch (error) {
     next(error);
   }
