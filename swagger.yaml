@@ -1,0 +1,268 @@
+openapi: 3.0.0
+info:
+  title: CineCritique API
+  version: 1.0.0
+  description: API pour la gestion des films, reviews et utilisateurs (projet CineCritique)
+servers:
+  - url: http://localhost:3000/api
+paths:
+  /movies/search:
+    get:
+      summary: Recherche de films
+      description: Recherche de films via TMDb
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Mot-clé de recherche
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+      responses:
+        '200':
+          description: Liste des films trouvés
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Movie'
+  /movies/popular:
+    get:
+      summary: Films populaires
+      description: Récupère les films populaires via TMDb
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+      responses:
+        '200':
+          description: Liste des films populaires
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Movie'
+  /movies/top-rated:
+    get:
+      summary: Films les mieux notés
+      description: Récupère les films les mieux notés via TMDb
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+      responses:
+        '200':
+          description: Liste des films top-rated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Movie'
+  /movies/{id}:
+    get:
+      summary: Détails d'un film
+      description: Récupère les détails d'un film via TMDb
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID TMDb du film
+      responses:
+        '200':
+          description: Détails du film
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+  /reviews:
+    post:
+      summary: Créer une review
+      description: Crée une review pour un film (authentification requise)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filmId:
+                  type: string
+                  description: ID TMDb du film
+                rating:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                comment:
+                  type: string
+                  minLength: 10
+                  maxLength: 2000
+      responses:
+        '201':
+          description: Review créée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+    get:
+      summary: Liste des reviews
+      description: Récupère toutes les reviews (optionnel)
+      responses:
+        '200':
+          description: Liste des reviews
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Review'
+  /reviews/film/{filmId}:
+    get:
+      summary: Reviews d'un film
+      description: Récupère toutes les reviews pour un film donné
+      parameters:
+        - name: filmId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Liste des reviews pour le film
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Review'
+  /reviews/user/{userId}:
+    get:
+      summary: Reviews d'un utilisateur
+      description: Récupère toutes les reviews d'un utilisateur
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Liste des reviews de l'utilisateur
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Review'
+components:
+  schemas:
+    Movie:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        poster:
+          type: string
+        releaseDate:
+          type: string
+          format: date
+        genres:
+          type: array
+          items:
+            type: string
+        runtime:
+          type: integer
+        overview:
+          type: string
+        cachedAt:
+          type: string
+          format: date-time
+    Review:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        filmId:
+          type: string
+        rating:
+          type: integer
+        comment:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        pseudo:
+          type: string
+        bio:
+          type: string
+        photo:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+

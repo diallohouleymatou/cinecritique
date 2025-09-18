@@ -7,6 +7,8 @@ import authRoutes from './routes/auth.js';
 import movieRoutes from './routes/movies.js';
 import reviewRoutes from './routes/reviews.js';
 import userRoutes from './routes/users.js';
+import swaggerUi from 'swagger-ui-express';
+import YAML from 'yamljs';
 
 dotenv.config();
 
@@ -21,6 +23,7 @@ const logger = pino({
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const swaggerDocument = YAML.load('./swagger.yaml');
 
 
 app.use(cors());
@@ -36,6 +39,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/movies', movieRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
