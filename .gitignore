@@ -1,0 +1,9 @@
+node_modules
+prd.md
+*.log
+.DS_Store
+.env
+.vscode
+dist
+.idea
+*.iml
