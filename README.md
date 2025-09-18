@@ -1,163 +1,148 @@
-# cinecritique
-Plateforme web communautaire pour découvrir, noter et commenter des films.
+# CineCritique API
+
+Backend API for CineCritique, a community movie review platform that integrates with TMDb API.
+
+## Features
+
+- **User Authentication**: Registration, login with JWT tokens
+- **Movie Discovery**: Search and browse movies via TMDb API
+- **Reviews System**: Create, update, delete movie reviews
+- **Ratings & Rankings**: Calculate average ratings and top-rated movies
+- **User Profiles**: Manage user profiles and view review history
+
+## Tech Stack
+
+- **Framework**: Express.js (Node.js)
+- **Database**: PostgreSQL with Sequelize ORM
+- **Authentication**: JWT with bcrypt password hashing
+- **Validation**: Zod schema validation
+- **External API**: The Movie Database (TMDb)
+- **Logging**: Pino logger
+
+## Project Structure
+
+```
+├── server.js              # Main application entry point
+├── config/
+│   ├── database.js         # Database connection configuration
+│   └── tmdb.js            # TMDb API client configuration
+├── controllers/
+│   ├── authController.js   # Authentication logic
+│   ├── movieController.js  # Movie-related operations
+│   └── reviewController.js # Review CRUD operations
+├── middleware/
+│   ├── auth.js            # JWT authentication middleware
+│   └── validation.js      # Request validation schemas
+├── models/
+│   ├── index.js           # Model associations
+│   ├── User.js            # User model
+│   ├── Review.js          # Review model
+│   └── Movie.js           # Movie cache model
+├── routes/
+│   ├── auth.js            # Authentication routes
+│   ├── movies.js          # Movie routes
+│   ├── reviews.js         # Review routes
+│   └── users.js           # User routes
+└── utils/
+    ├── api.js             # TMDb API wrapper
+    └── helpers.js         # Utility functions
+```
+
+## Setup Instructions
+
+### 1. Environment Variables
+
+Copy the example environment file and configure your variables:
+
+```bash
+cp .env.example .env
+```
+
+Update the following variables in `.env`:
+
+- `DB_*`: PostgreSQL database credentials
+- `JWT_SECRET`: Strong secret key for JWT tokens
+- `TMDB_API_KEY`: Your TMDb API key (get it from https://www.themoviedb.org/settings/api)
+
+### 2. Database Setup
+
+Create a PostgreSQL database and update the connection details in `.env`.
+
+### 3. Install Dependencies
+
+```bash
+npm install
+```
+
+### 4. Start Development Server
+
+```bash
+npm run dev
+```
+
+The server will start on `http://localhost:3000`
+
+## API Endpoints
+
+### Authentication
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/login` - User login
+- `GET /api/auth/me` - Get current user profile
+- `PUT /api/auth/me` - Update user profile
+
+### Movies
+- `GET /api/movies/search?q={query}` - Search movies
+- `GET /api/movies/popular` - Get popular movies
+- `GET /api/movies/:id` - Get movie details
+- `GET /api/movies/top-rated` - Get top-rated movies by community
+
+### Reviews
+- `POST /api/reviews` - Create a review
+- `PUT /api/reviews/:id` - Update a review
+- `DELETE /api/reviews/:id` - Delete a review
+- `GET /api/reviews/movie/:id` - Get reviews for a movie
+- `GET /api/reviews/user/:id` - Get reviews by a user
 
-### Cahier des charges – CineCritique
-1. Contexte
-Les amateurs de cinéma aiment consulter les avis, découvrir de nouveaux films et partager leurs critiques. CineCritique est une plateforme communautaire permettant à chacun de rechercher des films via une API externe (TMDb), de consulter les détails, de laisser une critique et de voir les films les mieux notés par la communauté.
+### Users
+- `GET /api/users/:id` - Get user profile and reviews
 
+## Scripts
 
-### 2. Objectif
-Créer une plateforme web permettant :
+- `npm start` - Start production server
+- `npm run dev` - Start development server with nodemon
+- `npm test` - Run tests
+- `npm run migrate` - Run database migrations
+- `npm run seed` - Run database seeders
 
-● La recherche et la découverte de films (affiche, synopsis, note, etc.)
+## Environment Variables
 
-● L’ajout de critiques personnelles
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `PORT` | Server port | 3000 |
+| `NODE_ENV` | Environment mode | development |
+| `DB_HOST` | Database host | localhost |
+| `DB_PORT` | Database port | 5432 |
+| `DB_NAME` | Database name | cinecritique |
+| `DB_USERNAME` | Database username | postgres |
+| `DB_PASSWORD` | Database password | - |
+| `JWT_SECRET` | JWT signing secret | - |
+| `JWT_EXPIRES_IN` | JWT token expiration | 7d |
+| `TMDB_API_KEY` | TMDb API key | - |
 
-● Le classement des films les mieux notés
+## Development
 
-● La consultation des avis d'autres utilisateurs
+### Database Migrations
 
-● Un design immersif et sombre, inspiré d’IMDb et Letterboxd
+The application uses Sequelize ORM. In development mode, the database will auto-sync with model changes. For production, use proper migrations.
 
-###3. Utilisateurs cibles
+### Adding New Features
 
-● Cinéphiles
+1. Create/update models in `models/`
+2. Add business logic in `controllers/`
+3. Define routes in `routes/`
+4. Add validation schemas in `middleware/validation.js`
+5. Update tests
 
-● Utilisateurs souhaitant noter ou commenter des films vus
+## License
 
-● Curieux à la recherche de suggestions de films populaires
-
-
-###4. Fonctionnalités principales
-
-Authentification
-
-● Inscription / connexion (email + mot de passe)
-
-● Déconnexion sécurisée
-
-● Affichage du profil utilisateur (pseudo, critiques publiées)
-
-
-Découverte de films
-● Recherche par titre (via TMDb API)
-
-● Affichage de la fiche d’un film :
-
-○ Titre, résumé, image, durée, genre, date de sortie, casting
-
-● Affichage des films populaires (via TMDb)
-
-● Filtres (genre, année, note…)
-
-
-Critiques
-
-● Ajout d’une critique (note sur 5 étoiles + texte libre)
-
-● Modification / suppression de sa propre critique
-
-● Affichage des critiques d’un film par tous les utilisateurs
-
-● Moyenne des notes (calculée localement)
-
-
-Classement
-
-● Page dédiée aux films les mieux notés par la communauté
-
-● Tri par popularité (note moyenne) ou nombre de critiques
-
-
-## 5. Design UI
-
-● Thème sombre inspiré de IMDb ou Letterboxd
-
-● Cartes de films avec affiches, titres, tags et étoiles
-
-● Étoiles interactives pour la notation
-
-● Page profil avec photo, pseudo, bio, critiques
-
-● Palette : noir, gris foncé, jaune (étoiles), bleu pour les liens
-
-Link: https://www.imdb.com/fr/
-Link: https://letterboxd.com/
-Link API: https://developer.imdb.com/documentation/?ref_=side_nav
-
-
-### 6. Stack technique suggérée
-
-● Frontend : React.js ou Next.js + Tailwind CSS
-
-● Backend : Node.js + Express ou (Django)
-
-● Base de données : MongoDB ou PostgreSQL
-
-● API externe : TMDb (The Movie Database)
-
-● Auth : JWT (ou Firebase Auth)
-
-● Déploiement : Vercel (frontend), Render/Heroku (backend)
-
-Structure des pages
-
-● / : Accueil avec films populaires
-
-● /login – /register : Authentification
-
-● /search?q=… : Résultats de recherche
-
-● /movie/:id : Détails d’un film + critiques
-
-● /top-rated : Films les mieux notés
-
-● /profile/:username : Profil d’un utilisateur
-
-● /my-reviews : Page personnelle de gestion des critiques
-
-NB: Cette structure ne constitue pas forcément la structure complète. Vous pourrez compléter si besoin
-
-
-User Stories – CineCritique
-
-Authentification
-
-● US001 : En tant qu’utilisateur, je veux m’inscrire et me connecter afin de publier des critiques.
-
-● US002 : En tant qu’utilisateur, je veux pouvoir gérer mon profil avec mon pseudo, ma bio et ma photo.
-
-● US003 : En tant qu’utilisateur, je veux me déconnecter en toute sécurité.
-
-
-Recherche et affichage de films
-
-● US004 : En tant qu’utilisateur, je veux rechercher un film par titre pour trouver rapidement ce que je cherche.
-
-● US005 : En tant qu’utilisateur, je veux voir une liste de films populaires dès l’accueil.
-
-● US006 : En tant qu’utilisateur, je veux consulter la fiche détaillée d’un film avec son synopsis, casting, affiche, durée et genres.
-
-● US007 : En tant qu’utilisateur, je veux filtrer les films par genre, année ou note moyenne.
-
-● US008’ : En tant qu’utilisateur, j’aimerais regarder la bande annonce d’un film.(BONUS)
-
-Critiques
-
-● US008 : En tant qu’utilisateur connecté, je veux publier une critique d’un film avec une note sur 5 étoiles et un texte explicatif.
-
-● US009 : En tant qu’utilisateur, je veux voir les critiques des autres utilisateurs pour m’aider à me faire un avis.
-
-● US010 : En tant qu’utilisateur, je veux modifier ou supprimer mes propres critiques.
-
-Classements & interaction
-
-● US011 : En tant qu’utilisateur, je veux consulter un classement des films les mieux notés par la communauté.
-
-● US012 : En tant qu’utilisateur, je veux voir la moyenne des notes pour chaque film calculée à partir des critiques.
-
-Profil utilisateur
-
-● US013 : En tant qu’utilisateur, je veux consulter mon profil avec la liste des critiques que j’ai publiées.
-
-● US014 : En tant qu’utilisateur, je veux pouvoir accéder au profil d’un autre utilisateur pour voir ses critiques.
+ISC
