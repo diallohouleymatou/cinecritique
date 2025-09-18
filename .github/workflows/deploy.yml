@@ -33,9 +33,5 @@ jobs:
           curl -X POST \
             -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
             -H "Content-Type: application/json" \
-            -d '{"serviceId": "${{ secrets.RENDER_SERVICE_ID }}"}' \
+            -d "{\"serviceId\": \"${{ secrets.RENDER_SERVICE_ID }}\"}" \
             https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys
-
-# Configure secrets in your GitHub repository:
-# DOCKERHUB_USERNAME, DOCKERHUB_TOKEN, DOCKERHUB_REPO, RENDER_API_KEY, RENDER_SERVICE_ID
-# La base PostgreSQL doit être configurée sur Render et les variables d'environnement renseignées dans Render.
