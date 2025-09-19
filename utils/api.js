@@ -1,4 +1,4 @@
-import { tmdbClient } from '../config/tmdb.js';
+import { tmdbClient, tmdbClientApiKey } from '../config/tmdb.js';
 
 class TMDbAPI {
   static async searchMovies(query, page = 1) {
@@ -26,11 +26,17 @@ class TMDbAPI {
 
   static async getPopularMovies(page = 1) {
     try {
+      // Utiliser le client Bearer (token) car il fonctionne pour ce endpoint
       const response = await tmdbClient.get('/movie/popular', {
         params: { page }
       });
       return response.data;
     } catch (error) {
+      console.error('TMDb popular movies error:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message
+      });
       throw new Error('Failed to fetch popular movies from TMDb');
     }
   }
