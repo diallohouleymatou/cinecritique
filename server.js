@@ -26,7 +26,11 @@ const PORT = process.env.PORT || 3000;
 const swaggerDocument = YAML.load('./swagger.yaml');
 
 
-app.use(cors());
+app.use(cors({
+   // origin: process.env.FRONTEND_URL || 'http://localhost:4200',
+    origin: "*",
+    optionsSuccessStatus: 200
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
