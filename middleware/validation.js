@@ -34,8 +34,7 @@ const registerSchema = z.object({
     email: z.string().email('Invalid email format'),
     password: z.string().min(8, 'Password must be at least 8 characters'),
     pseudo: z.string().min(3, 'Pseudo must be at least 3 characters').max(50, 'Pseudo too long'),
-    bio: z.string().optional(),
-    photo: z.string().url().optional()
+    bio: z.string().optional()
   })
 });
 

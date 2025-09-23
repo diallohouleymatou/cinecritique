@@ -2,7 +2,7 @@ import express from 'express';
 import { register, login, getProfile, updateProfile, updateProfileImage } from '../controllers/authController.js';
 import { validate, registerSchema, loginSchema, updateProfileSchema } from '../middleware/validation.js';
 import { authenticateToken } from '../middleware/auth.js';
-import upload from '../middleware/upload.js';
+import { upload } from '../middleware/upload.js';
 
 const router = express.Router();
 

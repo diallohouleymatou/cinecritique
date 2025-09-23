@@ -23,17 +23,14 @@ const User = sequelize.define('User', {
   pseudo: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true,
-    validate: {
-      len: [3, 50]
-    }
-  },
-  bio: {
-    type: DataTypes.TEXT,
-    allowNull: true
+    unique: true
   },
   photo: {
     type: DataTypes.STRING,
+    defaultValue: "https://res.cloudinary.com/dl5jlcbo3/image/upload/v1/default_profile"
+  },
+  bio: {
+    type: DataTypes.TEXT,
     allowNull: true
   },
   createdAt: {
