@@ -1,10 +1,11 @@
 import { User } from '../models/index.js';
 import { generateToken, errorResponse, successResponse } from '../utils/helpers.js';
 import { Op } from 'sequelize';
+import cloudinary from '../config/cloudinary.js';
 
 export const register = async (req, res, next) => {
   try {
-    const { email, password, pseudo, bio, photo } = req.validatedData.body;
+    const { email, password, pseudo, bio } = req.validatedData.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({
@@ -18,13 +19,30 @@ export const register = async (req, res, next) => {
       throw errorResponse(`User with this ${field} already exists`, 409);
     }
 
-    // Create new user
+    // Upload photo if provided
+    let photoUrl = "https://res.cloudinary.com/dl5jlcbo3/image/upload/v1/default_profile";
+    if (req.file) {
+      const buffer = req.file.buffer;
+      const base64Image = buffer.toString('base64');
+      const dataURI = `data:${req.file.mimetype};base64,${base64Image}`;
+
+      const result = await cloudinary.uploader.upload(dataURI, {
+        folder: 'profile_images',
+        transformation: [
+          { width: 500, height: 500, crop: 'auto', gravity: 'auto' },
+          { fetch_format: 'auto', quality: 'auto' }
+        ]
+      });
+      photoUrl = result.secure_url;
+    }
+
+    // Create new user with photo
     const user = await User.create({
       email,
       passwordHash: password, // Will be hashed by the model hook
       pseudo,
       bio,
-      photo
+      photo: photoUrl
     });
 
     // Generate token
@@ -90,7 +108,7 @@ export const getProfile = async (req, res, next) => {
 
 export const updateProfile = async (req, res, next) => {
   try {
-    const { pseudo, bio, photo } = req.validatedData.body;
+    const { pseudo, bio } = req.validatedData.body;
     const userId = req.user.id;
 
     // Check if pseudo is taken by another user
@@ -106,8 +124,7 @@ export const updateProfile = async (req, res, next) => {
     // Update user
     await req.user.update({
       ...(pseudo && { pseudo }),
-      ...(bio !== undefined && { bio }),
-      ...(photo !== undefined && { photo })
+      ...(bio !== undefined && { bio })
     });
 
     const userResponse = req.user.toJSON();
@@ -115,6 +132,36 @@ export const updateProfile = async (req, res, next) => {
 
     res.json(successResponse(userResponse, 'Profile updated successfully'));
 
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateProfileImage = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      throw errorResponse('Aucune image n\'a été uploadée', 400);
+    }
+
+    const buffer = req.file.buffer;
+    const base64Image = buffer.toString('base64');
+    const dataURI = `data:${req.file.mimetype};base64,${base64Image}`;
+
+    const result = await cloudinary.uploader.upload(dataURI, {
+      folder: 'profile_images',
+      transformation: [
+        { width: 500, height: 500, crop: 'auto', gravity: 'auto' },
+        { fetch_format: 'auto', quality: 'auto' }
+      ]
+    });
+
+    const user = req.user;
+    user.photo = result.secure_url;
+    await user.save();
+
+    res.json(successResponse({
+      photo: result.secure_url
+    }, 'Photo de profil mise à jour avec succès'));
   } catch (error) {
     next(error);
   }
