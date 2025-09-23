@@ -272,7 +272,7 @@ paths:
       tags:
         - Authentication
       summary: Inscription d'un utilisateur
-      description: Créer un nouveau compte utilisateur
+      description: Créer un nouveau compte utilisateur. Les champs bio et photo sont optionnels.
       requestBody:
         required: true
         content:
@@ -298,6 +298,7 @@ paths:
                 bio:
                   type: string
                   example: Passionné de cinéma
+                  description: Biographie de l'utilisateur (optionnelle)
                 photo:
                   type: string
                   format: binary
