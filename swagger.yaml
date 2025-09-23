@@ -205,6 +205,104 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Review'
+  /auth/me/image:
+    post:
+      tags:
+        - Authentication
+      summary: Upload une photo de profil
+      description: |
+        Permet à un utilisateur authentifié d'uploader une nouvelle photo de profil.
+        L'image sera automatiquement redimensionnée à 500x500 pixels et optimisée.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: Fichier image (jpg, png, etc.)
+      responses:
+        '200':
+          description: Photo de profil mise à jour avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      photo:
+                        type: string
+                        description: URL Cloudinary de la photo
+                        example: https://res.cloudinary.com/dl5jlcbo3/image/upload/v1/profile_images/example.jpg
+                  message:
+                    type: string
+                    example: Photo de profil mise à jour avec succès
+        '400':
+          description: Erreur de validation
+          content:
+            application/json:
+              schema:
+                $ref:
+              example:
+                success: false
+                error: Aucune image n'a été uploadée
+        '401':
+          $ref:
+        '413':
+          description: Image trop volumineuse
+          content:
+            application/json:
+              schema:
+                $ref:
+              example:
+                success: false
+                error: L'image ne doit pas dépasser 5MB
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Inscription d'un utilisateur
+      description: Créer un nouveau compte utilisateur
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+                - pseudo
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                password:
+                  type: string
+                  format: password
+                  example: motdepasse123
+                pseudo:
+                  type: string
+                  example: username123
+                bio:
+                  type: string
+                  example: Passionné de cinéma
+                photo:
+                  type: string
+                  format: binary
+                  description: Photo de profil (optionnelle)
+
 components:
   schemas:
     Movie:
@@ -254,15 +352,24 @@ components:
       properties:
         id:
           type: integer
+          example: 1
         email:
           type: string
+          format: email
+          example: user@example.com
         pseudo:
           type: string
-        bio:
-          type: string
+          example: username123
         photo:
           type: string
+          description: URL de la photo de profil
+          example: https://res.cloudinary.com/dl5jlcbo3/image/upload/v1/profile_images/user1.jpg
+        bio:
+          type: string
+          example: Passionné de cinéma
         createdAt:
           type: string
           format: date-time
-
+      required:
+        - email
+        - pseudo
