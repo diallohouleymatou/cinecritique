@@ -12,6 +12,6 @@ router.post('/login', validate(loginSchema), login);
 
 router.get('/me', authenticateToken, getProfile);
 router.put('/me', authenticateToken, validate(updateProfileSchema), updateProfile);
-router.post('/me/image', authenticateToken, upload.single('image'), updateProfileImage);
+router.post('/me/image', authenticateToken, upload.single('photo'), updateProfileImage);
 
 export default router;
